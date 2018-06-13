@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<section class="home-section margin-50-tb">
+    <div class="container">
+        <h2>Home</h2>
+
+        <div class="section-map">
+            <div class="nav">
+                <form method="POST" action="/home">
+                    {{ form.hidden_tag() }}
+        
+                    <div class="form-group">
+                        {% if form.address.errors %}
+                            {% for error in form.address.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        {{ form.address(placeholder="Explore nearby") }}
+
+                    </div>
+        
+                    {{ form.submit(class="btn-primary") }}
+        
+                </form>
+            </div>
+        </div>
+<br><br>
+        <div id="map"></div>
+    </div>
+</section>
+
+<script>
+    var planes = [
+        {% for place in places %}
+            ["<h3><a href='{{ place['url'] }}' target='_blank'>{{ place['name'] }}</a></h3> <p>{{ place['time'] }} min away</p>", {{ place['lat'] }}, {{ place['lng'] }} ],
+        {% endfor %}
+    ];
+
+    var map = L.map('map').setView([51.505, -0.09], 13);
+    mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+
+    L.tileLayer(
+        'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; ' + mapLink + ' Contributers',
+            maxZoom: 18,
+    }).addTo(map);
+
+    for (var i = 0; i < planes.length; i++){
+        marker = new L.marker([planes[i][1],planes[i][2]])
+        .bindPopup(planes[i][0])
+        .addTo(map);
+    }
+</script>
+{% endblock %}
